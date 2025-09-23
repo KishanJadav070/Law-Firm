@@ -45,6 +45,18 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Calculate clients for this month and last month
+  const thisMonthClients = clients.filter(
+    c => new Date(c.created_at).getMonth() === new Date().getMonth()
+  ).length;
+
+  const lastMonthClients = clients.filter(
+    c => new Date(c.created_at).getMonth() === new Date().getMonth() - 1
+  ).length;
+
+  // Determine positive/negative change
+  const isPositiveChange = thisMonthClients >= lastMonthClients;
+
   const handleSignOut = async () => {
     await signOut();
     toast.success('Signed out successfully');
@@ -78,6 +90,13 @@ const AdminDashboard: React.FC = () => {
       icon: <MessageSquare className="h-8 w-8 text-accent" />,
       change: '3 need approval',
       positive: false
+    },
+    {
+      title: 'Clients This Month',
+      value: clients.filter(c => new Date(c.created_at).getMonth() === new Date().getMonth()).length,
+      icon: <Users className="h-8 w-8 text-accent" />,
+      change: `${clients.filter(c => new Date(c.created_at).getMonth() === new Date().getMonth() - 1).length} last month`,
+      positive: isPositiveChange
     }
   ];
 
@@ -112,10 +131,10 @@ const AdminDashboard: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           {stats.map((stat, index) => (
             <div key={index} className="card p-6 card-hover">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between gap-4 mb-4">
                 <div className="bg-gradient-to-br from-rosegold/10 to-accent/10 p-3 rounded-2xl">
                   {stat.icon}
                 </div>
