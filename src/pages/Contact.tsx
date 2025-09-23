@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from 'lucide-react';
 import SEOHead from '../components/UI/SEOHead';
 import type { ContactForm } from '../types';
+import { supabase } from '../lib/supabase';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState<ContactForm>({
@@ -16,15 +17,32 @@ const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      // Simulate form submission - In a real application, this would connect to Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      // 1. Save to Supabase
+      const { error } = await supabase!.from("contact_submissions").insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+        },
+      ]);
+
+      if (error) throw error;
+
+      const subject = encodeURIComponent("New Consultation Request");
+      const body = encodeURIComponent(
+        `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nMessage: ${formData.message}`
+      );
+
+      window.location.href = `mailto:rudrapatel098@icloud.com?subject=${subject}&body=${body}&from=${formData.email}`;
+
+      setSubmitStatus("success");
+      setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
-      setSubmitStatus('error');
+      console.error(error);
+      setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
     }
@@ -70,12 +88,12 @@ const Contact: React.FC = () => {
 
   return (
     <>
-      <SEOHead 
+      <SEOHead
         title="Contact Advocate Aniruddh Jani - Legal Consultation in Gujarat"
         description="Contact Advocate Aniruddh Jani for legal consultation in Ahmedabad, Gandhinagar, Kalol. Book free consultation, call, or visit our office."
         keywords="contact advocate aniruddh jani, legal consultation gujarat, lawyer contact ahmedabad"
       />
-      
+
       <div className="min-h-screen pt-24">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800 text-white py-20 relative overflow-hidden">
@@ -84,19 +102,19 @@ const Contact: React.FC = () => {
             <div className="absolute top-10 right-10 w-64 h-64 bg-rosegold/10 rounded-full blur-3xl animate-float"></div>
             <div className="absolute bottom-10 left-10 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
           </div>
-          
+
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="animate-fade-in-up">
               <div className="inline-flex items-center bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20 mb-6">
                 <span className="text-sm font-medium">Let's Connect</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 font-serif">
-              Get in Touch
-            </h1>
+                Get in Touch
+              </h1>
               <p className="text-xl text-primary-100 max-w-3xl mx-auto leading-relaxed">
-              Ready to discuss your legal matter? I'm here to help. Reach out for a free consultation 
-              and let's work together to protect your rights and interests.
-            </p>
+                Ready to discuss your legal matter? I'm here to help. Reach out for a free consultation
+                and let's work together to protect your rights and interests.
+              </p>
             </div>
           </div>
         </section>
@@ -116,7 +134,7 @@ const Contact: React.FC = () => {
                 <p className="text-primary-600 mb-8 text-lg leading-relaxed">
                   Fill out the form below and I'll get back to you within 2 hours during business hours.
                 </p>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
@@ -150,7 +168,7 @@ const Contact: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="phone" className="block text-sm font-semibold text-primary-900 mb-3">
                       Phone Number *
@@ -166,7 +184,7 @@ const Contact: React.FC = () => {
                       placeholder="+91 98765 43210"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="message" className="block text-sm font-semibold text-primary-900 mb-3">
                       Message *
@@ -182,7 +200,7 @@ const Contact: React.FC = () => {
                       placeholder="Please describe your legal matter in detail..."
                     />
                   </div>
-                  
+
                   {submitStatus === 'success' && (
                     <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
                       <p className="text-green-800 font-medium">
@@ -190,7 +208,7 @@ const Contact: React.FC = () => {
                       </p>
                     </div>
                   )}
-                  
+
                   {submitStatus === 'error' && (
                     <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
                       <p className="text-red-800 font-medium">
@@ -198,7 +216,7 @@ const Contact: React.FC = () => {
                       </p>
                     </div>
                   )}
-                  
+
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -225,10 +243,10 @@ const Contact: React.FC = () => {
                   Contact Information
                 </h2>
                 <p className="text-primary-600 mb-8 text-lg leading-relaxed">
-                  Prefer to reach out directly? Use any of the contact methods below. 
+                  Prefer to reach out directly? Use any of the contact methods below.
                   I'm always available to discuss your legal needs.
                 </p>
-                
+
                 <div className="space-y-6">
                   {contactInfo.map((info, index) => (
                     <div key={index} className="card p-8 card-hover group">
@@ -286,7 +304,7 @@ const Contact: React.FC = () => {
                 Located in the heart of Ahmedabad for easy accessibility
               </p>
             </div>
-            
+
             <div className="card overflow-hidden animate-scale-in">
               <div className="aspect-w-16 aspect-h-9 h-96">
                 <iframe
