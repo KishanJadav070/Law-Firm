@@ -36,7 +36,7 @@ const Contact: React.FC = () => {
         `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nMessage: ${formData.message}`
       );
 
-      window.location.href = `mailto:rudrapatel098@icloud.com?subject=${subject}&body=${body}&from=${formData.email}`;
+      window.location.href = `mailto:aniruddhjani1977@gmail.com?subject=${subject}&body=${body}&from=${formData.email}`;
 
       setSubmitStatus("success");
       setFormData({ name: "", email: "", phone: "", message: "" });
