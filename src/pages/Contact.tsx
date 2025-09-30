@@ -3,6 +3,8 @@ import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from 'lucide-react';
 import SEOHead from '../components/UI/SEOHead';
 import type { ContactForm } from '../types';
 import { supabase } from '../lib/supabase';
+import emailjs from "emailjs-com";
+emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState<ContactForm>({
@@ -20,28 +22,36 @@ const Contact: React.FC = () => {
 
     try {
       // 1. Save to Supabase
-      const { error } = await supabase!.from("contact_submissions").insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          message: formData.message,
-        },
-      ]);
+      const { error } = await supabase!
+        .from("contact_submissions")
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message,
+          },
+        ]);
 
       if (error) throw error;
 
-      const subject = encodeURIComponent("New Consultation Request");
-      const body = encodeURIComponent(
-        `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nMessage: ${formData.message}`
+      // 2. Send Email via EmailJS
+      const res = await emailjs.send(
+        "service_hxh99gr",                // your service ID
+        "template_428ybqk",               // your template ID
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+        }
       );
-
-      window.location.href = `mailto:aniruddhjani1977@gmail.com?subject=${subject}&body=${body}&from=${formData.email}`;
+      if (res.status !== 200) throw new Error("Failed to send email.");
 
       setSubmitStatus("success");
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
-      console.error(error);
+      console.error("Error submitting form:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
